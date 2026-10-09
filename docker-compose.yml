@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  mining-news-mcp:
+    build: .
+    command: python servers/mining_news_mcp.py
+    environment:
+      - NEWS_API_KEY=${NEWS_API_KEY:-}
+    stdin_open: true
+    tty: true
+
+  mineral-pdf-mcp:
+    build: .
+    command: python servers/mineral_pdf_mcp.py
+    stdin_open: true
+    tty: true
+
+  lme-price-mcp:
+    build: .
+    command: python servers/lme_price_mcp.py
+    environment:
+      - LME_API_KEY=${LME_API_KEY:-}
+    stdin_open: true
+    tty: true
+
+  agent:
+    build: .
+    command: python agent/main.py
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MCP_TRANSPORT=stdio
+    depends_on:
+      - mining-news-mcp
+      - mineral-pdf-mcp
+      - lme-price-mcp
+    volumes:
+      - ./output:/app/output
